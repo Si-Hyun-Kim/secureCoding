@@ -151,7 +151,7 @@ http://localhost:8000/myapp/
 - Directory Traversal: 경로 정규화, 베이스 디렉토리 검증
 - XSS: HTML 이스케이프, textContent 사용
 
-## Trouble Shooting
+## 🆘 Trouble Shooting
 
 ### ImportError 발생 시
 ```bash
