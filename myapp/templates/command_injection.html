@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/common.css' %}">
+  <link rel="stylesheet" href="{% static 'css/test-pages.css' %}">
+  <title>Command Injection 테스트</title>
+  <style>
+    li { list-style-type: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚙️ Command Injection 테스트</h1>
+
+    <div class="description">
+      <strong>Command Injection이란?</strong><br>
+      애플리케이션에서 외부 입력값을 검증하지 않고 시스템 명령어로 실행할 때, 공격자가 임의의 명령어를 삽입하여 실행하는 공격 기법입니다.
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <label for="command"><strong>실행할 코드를 입력하세요</strong></label>
+      <input type="text" name="command" id="command" placeholder="예: 2 + 3">
+
+      <button type="submit" name="mode" value="vulnerable" class="vulnerable">
+        ❌ 취약코드 테스트
+      </button>
+      <button type="submit" name="mode" value="safe" class="safe">
+        ✅ 안전코드 테스트
+      </button>
+    </form>
+
+    <div class="attack-example">
+      <h3>공격 예제</h3>
+      <p><strong>정상 입력:</strong> <code>2 + 3</code> → 결과: 5</p>
+      <p><strong>악의적 입력:</strong> <code>__import__('os').system('whoami')</code></p>
+      <div class="code">
+        # eval() 함수는 문자열을 Python 코드로 실행<br>
+        # 공격자는 os.system() 등을 삽입하여 시스템 명령어 실행 가능<br>
+        result = eval(user_input)  # 위험!
+      </div>
+      <p><strong>더 위험한 예제</strong></p>
+      <ul>
+        <li><code>__import__('os').system('ls -la')</code> - 파일 목록 조회</li>
+        <li><code>open('/etc/passwd').read()</code> - 시스템 파일 읽기</li>
+      </ul>
+    </div>
+
+    <div class="links">
+      <a href="{% url 'index' %}">🏠 메인으로</a>
+    </div>
+  </div>
+</body>
+</html>

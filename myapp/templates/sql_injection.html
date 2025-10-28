@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Injection 테스트</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/common.css' %}">
+  <link rel="stylesheet" href="{% static 'css/test-pages.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h1>SQL Injection 테스트</h1>
+
+    <div class="description">
+      <strong>SQL Injection이란?</strong><br>
+      데이터베이스 쿼리에 악의적인 SQL 코드를 삽입하여 인증을 우회하거나 데이터를 무단으로 조회/수정/삭제하는 공격 기법입니다.
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit" name="mode" value="vulnerable" class="vulnerable">
+        ❌ 취약코드 테스트
+      </button>
+      <button type="submit" name="mode" value="safe" class="safe">
+        ✅ 안전코드 테스트
+      </button>
+    </form>
+
+    <div class="attack-example">
+      <h3>공격 예제</h3>
+      <p><strong>User ID</strong> <code>admin' OR '1'='1</code></p>
+      <p><strong>Password</strong> <code>아무거나</code></p>
+      <div class="code">
+        -- 실행될 SQL (취약한 경우)<br>
+        SELECT * FROM students WHERE userID='admin' OR '1'='1' AND password='아무거나'<br>
+        -- '1'='1'은 항상 참이므로 모든 데이터가 조회됨
+      </div>
+    </div>
+
+    <div class="links">
+      <a href="{% url 'index' %}">🏠 메인으로</a>
+      <a href="{% url 'student_list' %}">📊 DB 데이터 보기</a>
+    </div>
+  </div>
+</body>
+</html>

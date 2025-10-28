@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>테스트 결과</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/common.css' %}">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+    }
+
+    h1 {
+      border-bottom: 3px solid #667eea;
+      color: #333;
+    }
+
+    .mode-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .mode-vulnerable {
+      background: #dc3545;
+      color: white;
+    }
+
+    .mode-safe {
+      background: #28a745;
+      color: white;
+    }
+
+    .result-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .result-box h3 {
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .sql-query {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #333;
+      overflow-x: auto;
+      border-left: 4px solid #667eea;
+    }
+
+    .params {
+      color: #666;
+      font-family: 'Courier New', monospace;
+      margin-top: 10px;
+    }
+
+    .data-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .data-list li {
+      background: #f8f9fa;
+      padding: 10px 15px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border-left: 3px solid #667eea;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 5px;
+      border-left: 4px solid #dc3545;
+    }
+
+    .no-data {
+      color: #999;
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+
+    .warning-box strong {
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 테스트 결과</h1>
+
+    <div>
+      <strong>실행 모드:</strong>
+      <span class="mode-badge {% if mode == 'vulnerable' %}mode-vulnerable{% else %}mode-safe{% endif %}">
+        {% if mode == 'vulnerable' %}❌ 취약코드{% else %}✅ 안전코드{% endif %}
+      </span>
+    </div>
+
+    <div class="result-box">
+      <h3>📝 실행된 쿼리/명령</h3>
+      <div class="sql-query">{{ executed_sql }}</div>
+      {% if params %}
+      <div class="params"><strong>파라미터:</strong> {{ params }}</div>
+      {% endif %}
+    </div>
+
+    <div class="result-box">
+      <h3>📊 실행 결과</h3>
+
+      {% if message %}
+        <div class="error-message">
+          <strong>⚠️ 오류:</strong> {{ message }}
+        </div>
+      {% endif %}
+
+      {% if results %}
+        <ul class="data-list">
+        {% for r in results %}
+          <li>{{ r }}</li>
+        {% endfor %}
+        </ul>
+      {% else %}
+        {% if not message %}
+          <div class="no-data">일치하는 데이터가 없습니다.</div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if mode == 'vulnerable' and results %}
+    <div class="warning-box">
+      <strong>⚠️ 보안 경고:</strong>
+      취약한 코드를 실행하여 공격이 성공했습니다! 실제 환경에서는 절대 이러한 방식을 사용하지 마세요.
+    </div>
+    {% endif %}
+
+    <div class="links">
+      <a href="{% url 'index' %}">🏠 메인으로</a> |
+      <a href="javascript:history.back()">🔙 다시 시도</a> |
+      <a href="{% url 'student_list' %}">📊 DB 목록</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/common.css' %}">
+  <link rel="stylesheet" href="{% static 'css/test-pages.css' %}">
+  <title>Directory Traversal 테스트</title>
+  <style>
+    li { list-style-type: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Directory Traversal 테스트</h1>
+
+    <div class="description">
+      <strong>Directory Traversal(경로 조작)이란?</strong><br>
+      사용자 입력을 통해 파일 경로를 조작하여 애플리케이션이 의도하지 않은 디렉토리나 파일에 접근하는 공격 기법입니다.
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <label for="filename"><strong>읽을 파일명을 입력하세요</strong></label>
+      <input type="text" name="filename" id="filename" placeholder="예: test.txt">
+
+      <button type="submit" name="mode" value="vulnerable" class="vulnerable">
+        ❌ 취약코드 테스트
+      </button>
+      <button type="submit" name="mode" value="safe" class="safe">
+        ✅ 안전코드 테스트
+      </button>
+    </form>
+
+    <div class="attack-example">
+      <h3>🎯 공격 예제</h3>
+      <p><strong>정상 입력:</strong> <code>test.txt</code> → /uploads/test.txt 읽기</p>
+      <p><strong>악의적 입력:</strong> <code>../../etc/passwd</code></p>
+      <div class="code">
+        # 취약한 코드<br>
+        file_path = "/uploads/" + user_input<br>
+        # user_input = "../../etc/passwd"<br>
+        # 결과: /uploads/../../etc/passwd → /etc/passwd
+      </div>
+      <p><strong>다양한 공격 패턴:</strong></p>
+      <ul>
+        <li><code>../../../etc/passwd</code> - Linux 시스템 파일</li>
+        <li><code>..\..\..\..\windows\system32\config\sam</code> - Windows 파일</li>
+        <li><code>....//....//etc/passwd</code> - 필터 우회</li>
+      </ul>
+    </div>
+
+    <div class="links">
+      <a href="{% url 'index' %}">🏠 메인으로</a>
+    </div>
+  </div>
+</body>
+</html>

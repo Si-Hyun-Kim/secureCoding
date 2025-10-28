@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/common.css' %}">
+  <link rel="stylesheet" href="{% static 'css/test-pages.css' %}">
+  <title>Reflected XSS 테스트</title>
+  <style>
+    .result-box {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .result-box h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .mode-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .mode-vulnerable {
+      background: #dc3545;
+      color: white;
+    }
+
+    .mode-safe {
+      background: #28a745;
+      color: white;
+    }
+
+    li { list-style-type: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reflected XSS 테스트</h1>
+
+    <div class="description">
+      <strong>Reflected XSS란?</strong><br>
+      사용자 입력값이 서버의 응답에 그대로 반사(reflected)되어 브라우저에서 스크립트가 실행되는 공격입니다. URL이나 폼을 통해 전달된 악성 스크립트가 즉시 실행됩니다.
+    </div>
+
+    <form method="get">
+      <label for="name"><strong>이름을 입력하세요</strong></label>
+      <input type="text" name="name" id="name" placeholder="예: 홍길동">
+
+      <button type="submit" name="mode" value="vulnerable" class="vulnerable">
+        ❌ 취약코드 테스트
+      </button>
+      <button type="submit" name="mode" value="safe" class="safe">
+        ✅ 안전코드 테스트
+      </button>
+    </form>
+
+    {% if name and mode %}
+    <div class="result-box">
+      <h3>📊 실행 결과</h3>
+      <p><strong>모드:</strong>
+        <span class="mode-badge {% if mode == 'vulnerable' %}mode-vulnerable{% else %}mode-safe{% endif %}">
+          {% if mode == 'vulnerable' %}❌ 취약코드{% else %}✅ 안전코드{% endif %}
+        </span>
+      </p>
+
+      <div style="background: white; padding: 15px; border-radius: 5px; margin-top: 10px;">
+        {% if mode == 'vulnerable' %}
+          <!-- ❌ 취약: |safe 필터 사용 - HTML이 그대로 실행됨 -->
+          <div>안녕하세요, {{ name|safe }}님!</div>
+        {% else %}
+          <!-- ✅ 안전: 자동 이스케이프 - HTML이 텍스트로 표시됨 -->
+          <div>안녕하세요, {{ name }}님!</div>
+        {% endif %}
+      </div>
+
+      {% if mode == 'vulnerable' %}
+      <div style="background: #fff3cd; padding: 10px; margin-top: 10px; border-radius: 5px; border-left: 4px solid #ffc107;">
+        <strong>⚠️ 보안 경고:</strong> 스크립트가 실행되었다면 XSS 공격에 취약합니다!
+      </div>
+      {% else %}
+      <div style="background: #d4edda; padding: 10px; margin-top: 10px; border-radius: 5px; border-left: 4px solid #28a745;">
+        <strong>✅ 안전:</strong> HTML이 텍스트로 이스케이프되어 스크립트가 실행되지 않습니다.
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="attack-example">
+      <h3>공격 예제</h3>
+      <p><strong>정상 입력:</strong> <code>홍길동</code> → "안녕하세요, 홍길동님!"</p>
+      <p><strong>악의적 입력:</strong> <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></p>
+      {% verbatim %}
+      <div class="code">
+        # Django 템플릿 (취약)<br>
+        &lt;p&gt;안녕하세요, {{ name|safe }}님!&lt;/p&gt;<br>
+        <br>
+        # 결과 HTML<br>
+        &lt;p&gt;안녕하세요, &lt;script&gt;alert('XSS')&lt;/script&gt;님!&lt;/p&gt;
+      </div>
+      {% endverbatim %}
+      <p><strong>다양한 공격 페이로드</strong></p>
+      <ul>
+        <li><code>&lt;img src=x onerror=alert('XSS')&gt;</code></li>
+        <li><code>&lt;svg onload=alert('XSS')&gt;</code></li>
+        <li><code>&lt;iframe src="javascript:alert('XSS')"&gt;</code></li>
+      </ul>
+    </div>
+
+    <div class="links">
+      <a href="{% url 'index' %}">🏠 메인으로</a>
+    </div>
+  </div>
+</body>
+</html>
